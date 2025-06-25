@@ -1,29 +1,38 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { Stack } from "expo-router";
+import { Platform, useColorScheme } from "react-native";
+import { useMaterial3Theme } from "@pchmn/expo-material3-theme";
+import { configureFonts, MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
+import { ComponentProps, useMemo } from "react";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+  const { theme } = useMaterial3Theme();
+
+  const fonts = configureFonts({
+    config: {
+      fontFamily: Platform.select({
+        web: '"Inter Variable", Inter, Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif',
+      }),
+    }
   });
 
-  if (!loaded) {
-    // Async font loading only occurs in development.
-    return null;
-  }
+  const paperTheme = useMemo(
+    () => colorScheme === "dark"
+      ? { ...MD3DarkTheme, colors: theme.dark, fonts }
+      : { ...MD3LightTheme, colors: theme.light, fonts },
+    [colorScheme, theme]
+  );
+
+  const screenOptions: ComponentProps<typeof Stack>["screenOptions"] = {
+    headerShown: false,
+    contentStyle: {
+      backgroundColor: paperTheme.colors.background,
+    }
+  };
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <PaperProvider theme={paperTheme}>
+      <Stack screenOptions={screenOptions} />
+    </PaperProvider>
   );
 }
