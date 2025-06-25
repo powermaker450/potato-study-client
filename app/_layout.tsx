@@ -3,6 +3,7 @@ import { Platform, useColorScheme } from "react-native";
 import { useMaterial3Theme } from "@pchmn/expo-material3-theme";
 import { configureFonts, MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
 import { ComponentProps, useMemo } from "react";
+import { ApiProvider } from "@/contexts/ApiProvider";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -32,7 +33,9 @@ export default function RootLayout() {
 
   return (
     <PaperProvider theme={paperTheme}>
-      <Stack screenOptions={screenOptions} />
+      <ApiProvider>
+        <Stack screenOptions={screenOptions} />
+      </ApiProvider>
     </PaperProvider>
   );
 }
