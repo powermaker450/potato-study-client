@@ -2,7 +2,6 @@ import { createContext, ReactNode, useContext, useEffect, useState } from "react
 import { PotatoStudyApi } from "@povario/potato-study.js";
 import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
-import { AxiosError } from "axios";
 
 interface ApiProviderProps {
   children: ReactNode;
@@ -10,7 +9,7 @@ interface ApiProviderProps {
 
 interface ApiLoginOpts {
   baseUrl: string;
-  token: string;
+  token?: string;
 }
 
 interface ApiProviderData {
@@ -25,21 +24,21 @@ interface ApiProviderData {
 const ApiContext = createContext<ApiProviderData | undefined>(undefined);
 
 export const ApiProvider = ({ children }: ApiProviderProps) => {
-  const [api, setApi] = useState(new PotatoStudyApi("http://localhost", ""));
+  const { EXPO_PUBLIC_BASE_URL } = process.env;
+
+  const [api, setApi] = useState(new PotatoStudyApi(EXPO_PUBLIC_BASE_URL ?? "http://localhost:8080", ""));
   const [baseUrl, setBaseUrl] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
 
   async function login({ baseUrl, token }: ApiLoginOpts) {
-
     if (Platform.OS === "web") {
-      localStorage.setItem("token", token);
+      token && localStorage.setItem("token", token);
       localStorage.setItem("baseUrl", baseUrl);
-      return;
+    } else {
+      token && await SecureStore.setItemAsync("token", token);
+      await SecureStore.setItemAsync("baseUrl", baseUrl);
     }
-
-    await SecureStore.setItemAsync("token", token);
-    await SecureStore.setItemAsync("baseUrl", baseUrl);
 
     setApi(new PotatoStudyApi(baseUrl, token));
     setBaseUrl(baseUrl);
@@ -47,7 +46,7 @@ export const ApiProvider = ({ children }: ApiProviderProps) => {
   };
 
   async function logout() {
-    setApi(new PotatoStudyApi("http://localhost", ""));
+    setApi(new PotatoStudyApi(EXPO_PUBLIC_BASE_URL ?? "http://localhost:8080", ""));
     setBaseUrl("");
     setLoggedIn(false);
 
@@ -72,8 +71,8 @@ export const ApiProvider = ({ children }: ApiProviderProps) => {
       baseUrl = await SecureStore.getItemAsync("baseUrl");
     }
 
-    if (baseUrl && token) {
-      setApi(new PotatoStudyApi(baseUrl, token));
+    if (baseUrl) {
+      setApi(new PotatoStudyApi(baseUrl, token ?? undefined));
       setBaseUrl(baseUrl);
     }
 
@@ -91,16 +90,6 @@ export const ApiProvider = ({ children }: ApiProviderProps) => {
       if (api.axios.getUri() === "http://localhost") {
         setLoggedIn(false);
         return;
-      }
-
-      try {
-        // Perform an authorized action
-      } catch (err) {
-        if (err instanceof AxiosError) {
-          // Show error
-
-          err.status == 401 && await logout();
-        }
       }
     }
 

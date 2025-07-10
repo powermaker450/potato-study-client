@@ -4,6 +4,7 @@ import { useMaterial3Theme } from "@pchmn/expo-material3-theme";
 import { configureFonts, MD3DarkTheme, MD3LightTheme, PaperProvider } from "react-native-paper";
 import { ComponentProps, useMemo } from "react";
 import { ApiProvider } from "@/contexts/ApiProvider";
+import { ToastProvider } from "@/contexts/ToastProvider";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -33,9 +34,11 @@ export default function RootLayout() {
 
   return (
     <PaperProvider theme={paperTheme}>
-      <ApiProvider>
-        <Stack screenOptions={screenOptions} />
-      </ApiProvider>
+      <ToastProvider>
+        <ApiProvider>
+          <Stack screenOptions={screenOptions} />
+        </ApiProvider>
+      </ToastProvider>
     </PaperProvider>
   );
 }

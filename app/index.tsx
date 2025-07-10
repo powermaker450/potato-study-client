@@ -1,25 +1,36 @@
-import { ComponentProps, useState } from "react";
 import MainView from "@/components/MainView";
-import { Appbar, Button, TextInput } from "react-native-paper";
 import { useApi } from "@/contexts/ApiProvider";
-import { PotatoStudyApi } from "@povario/potato-study.js";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, Appbar } from "react-native-paper";
+import type { AxiosError } from "axios";
+import { useToast } from "@/contexts/ToastProvider";
+import { FlashcardSet } from "@povario/potato-study.js/models";
+import FlashcardSetPreview from "@/components/FlashcardSetPreview";
 
 export default function Index() {
-  const { api, login, logout } = useApi();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { api } = useApi();
+  const toast = useToast();
+  const [sets, setSets] = useState<FlashcardSet[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const styles: { input: ComponentProps<typeof TextInput>["style"] } = {
-    input: {
-      marginBottom: 10
+  useEffect(() => {
+    async function start() {
+      try {
+        const res = await api.sets.getAll();
+        setSets(res);
+        console.log(res);
+        setLoading(false);
+      } catch (e) {
+        const { response } = e as AxiosError<{ name?: string, message?: string }>;
+        toast.error(response?.data.message ?? "Unknown error");
+        console.error(e);
+      }
     }
-  };
 
-  async function setup() {
-    console.log({ email, password });
-    const res = await PotatoStudyApi.login("http://localhost:8080", { email, password });
-    console.log(res);
-  }
+    start();
+  }, []);
+
+  const loadingIcon = <ActivityIndicator animating />;
 
   return (
     <>
@@ -28,22 +39,8 @@ export default function Index() {
       </Appbar.Header>
 
       <MainView>
-        <TextInput
-          style={styles.input}
-          label="Username"
-          value={email}
-          onChangeText={setEmail}
-        />
-
-        <TextInput
-          style={styles.input}
-          label="Password"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-
-        <Button onPress={setup}>Login</Button>
+        {loading ? loadingIcon : undefined}
+        {sets.map(set => <FlashcardSetPreview key={set.id} set={set} />)}
       </MainView>
     </>
   );
