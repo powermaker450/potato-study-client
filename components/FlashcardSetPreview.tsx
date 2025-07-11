@@ -10,10 +10,17 @@ const FlashcardSetPreview = ({ set }: FlashcardSetPreviewProps) => {
     <Card>
       <Card.Title title={set.name} subtitle={`Created by: ${set.creator}`} />
       <Card.Content>
-        {set.flashcards.map(card => <Text key={card.id} style={{ display: "flex", flexDirection: "column" }}>{card.text}</Text>)}
+        {set.flashcards.map((card) => (
+          <Text
+            key={card.id}
+            style={{ display: "flex", flexDirection: "column" }}
+          >
+            {card.text}
+          </Text>
+        ))}
       </Card.Content>
     </Card>
   );
-}
+};
 
 export default FlashcardSetPreview;

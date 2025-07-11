@@ -1,4 +1,11 @@
-import { createContext, ReactNode, useContext, useMemo, useState, type ComponentProps } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useMemo,
+  useState,
+  type ComponentProps,
+} from "react";
 import * as Haptics from "expo-haptics";
 import { Portal, Snackbar } from "react-native-paper";
 import { Platform } from "react-native";
@@ -24,31 +31,31 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
   const hideNotice = () => {
     setNotice(false);
     setText("");
-  }
+  };
 
-  const show: ToastProviderData["show"] = text => {
+  const show: ToastProviderData["show"] = (text) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setText(text);
     setNotice(true);
     setTimeout(hideNotice, 2000);
-  }
+  };
 
-  const error: ToastProviderData["error"] = text => {
+  const error: ToastProviderData["error"] = (text) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
     setText(text);
     setNotice(true);
     setTimeout(hideNotice, 2000);
-  }
+  };
 
   const styles = useMemo<ToastProviderStyles>(
     () => ({
       bar: {
         width: Platform.OS === "web" ? "50%" : "95%",
         alignSelf: "center",
-        marginBottom: 15
-      }
+        marginBottom: 15,
+      },
     }),
-    []
+    [],
   );
 
   return (
@@ -61,8 +68,8 @@ export const ToastProvider = ({ children }: ToastProviderProps) => {
         </Snackbar>
       </Portal>
     </ToastContext.Provider>
-  )
-}
+  );
+};
 
 export const useToast = () => {
   const context = useContext(ToastContext);
@@ -72,4 +79,4 @@ export const useToast = () => {
   }
 
   return context;
-}
+};

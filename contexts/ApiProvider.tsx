@@ -1,4 +1,10 @@
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { PotatoStudyApi } from "@povario/potato-study.js";
 import SecureStoreWrapper from "@/util/SecureStoreWrapper";
 import LocalStorageWrapper from "@/util/LocalStorageWrapper";
@@ -26,7 +32,9 @@ const ApiContext = createContext<ApiProviderData | undefined>(undefined);
 export const ApiProvider = ({ children }: ApiProviderProps) => {
   const { EXPO_PUBLIC_BASE_URL } = process.env;
 
-  const [api, setApi] = useState(new PotatoStudyApi(EXPO_PUBLIC_BASE_URL ?? "http://localhost:8080", ""));
+  const [api, setApi] = useState(
+    new PotatoStudyApi(EXPO_PUBLIC_BASE_URL ?? "http://localhost:8080", ""),
+  );
   const [baseUrl, setBaseUrl] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -35,7 +43,7 @@ export const ApiProvider = ({ children }: ApiProviderProps) => {
     const available = await SecureStoreWrapper.isAvailableAsync();
 
     if (available) {
-      token && await SecureStoreWrapper.setItem("token", token);
+      token && (await SecureStoreWrapper.setItem("token", token));
       await SecureStoreWrapper.setItem("baseUrl", baseUrl);
     } else {
       token && LocalStorageWrapper.setItem("token", token);
@@ -45,12 +53,14 @@ export const ApiProvider = ({ children }: ApiProviderProps) => {
     setApi(new PotatoStudyApi(baseUrl, token));
     setBaseUrl(baseUrl);
     setLoggedIn(true);
-  };
+  }
 
   async function logout() {
     const available = await SecureStoreWrapper.isAvailableAsync();
 
-    setApi(new PotatoStudyApi(EXPO_PUBLIC_BASE_URL ?? "http://localhost:8080", ""));
+    setApi(
+      new PotatoStudyApi(EXPO_PUBLIC_BASE_URL ?? "http://localhost:8080", ""),
+    );
     setBaseUrl("");
     setLoggedIn(false);
 
@@ -96,7 +106,7 @@ export const ApiProvider = ({ children }: ApiProviderProps) => {
         logout,
         loggedIn,
         baseUrl,
-        loading
+        loading,
       }}
     >
       {children}
@@ -112,4 +122,4 @@ export const useApi = () => {
   }
 
   return context;
-}
+};

@@ -1,7 +1,14 @@
 import MainView from "@/components/MainView";
 import { useApi } from "@/contexts/ApiProvider";
 import { ComponentProps, useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, Appbar, Button, Dialog, Portal, TextInput } from "react-native-paper";
+import {
+  ActivityIndicator,
+  Appbar,
+  Button,
+  Dialog,
+  Portal,
+  TextInput,
+} from "react-native-paper";
 import type { AxiosError } from "axios";
 import { useToast } from "@/contexts/ToastProvider";
 import { FlashcardSet } from "@povario/potato-study.js/models";
@@ -27,14 +34,14 @@ export default function Index() {
 
   const styles: IndexStyleSheet = {
     input: {
-      marginTop: 10
+      marginTop: 10,
     },
     ...Platform.select({
       web: {
-        loginWindow: { alignSelf: "center" }
-      }
-    })
-  }
+        loginWindow: { alignSelf: "center" },
+      },
+    }),
+  };
 
   useEffect(() => {
     async function start() {
@@ -44,7 +51,10 @@ export default function Index() {
         console.log(res);
         setLoading(false);
       } catch (e) {
-        const { response } = e as AxiosError<{ name?: string, message?: string }>;
+        const { response } = e as AxiosError<{
+          name?: string;
+          message?: string;
+        }>;
         toast.error(response?.data.message ?? "Unknown error");
         console.error(e);
       }
@@ -53,23 +63,20 @@ export default function Index() {
     start();
   }, []);
 
-  const execLogin = useCallback(
-    async () => {
-      try {
-        const { token } = await api.auth.login({ email, password });
-        await login({ baseUrl, token });
+  const execLogin = useCallback(async () => {
+    try {
+      const { token } = await api.auth.login({ email, password });
+      await login({ baseUrl, token });
 
-        toast.show("Logged in.");
-        hideLoginWindow();
-      } catch (e) {
-        const { response } = e as AxiosError<{ name?: string, message?: string }>;
-        
-        toast.error(response?.data.message ?? "Unknown error");
-        console.error(response ?? e);
-      }
-    },
-    [email, password]
-  );
+      toast.show("Logged in.");
+      hideLoginWindow();
+    } catch (e) {
+      const { response } = e as AxiosError<{ name?: string; message?: string }>;
+
+      toast.error(response?.data.message ?? "Unknown error");
+      console.error(response ?? e);
+    }
+  }, [email, password]);
 
   const loadingIcon = <ActivityIndicator animating />;
   const loginWindow = (
@@ -99,9 +106,12 @@ export default function Index() {
         </Dialog.Content>
 
         <Dialog.Actions>
-          <Button onPress={hideLoginWindow}>Cancel</Button> 
+          <Button onPress={hideLoginWindow}>Cancel</Button>
           <Button
-            disabled={!email.match(/[A-Za-z0-9].*@[A-Za-z0-9].*\.[A-Za-z0-9]/) || !password.trim()}
+            disabled={
+              !email.match(/[A-Za-z0-9].*@[A-Za-z0-9].*\.[A-Za-z0-9]/) ||
+              !password.trim()
+            }
             onPress={execLogin}
           >
             Log in
@@ -120,7 +130,9 @@ export default function Index() {
 
       <MainView>
         {loading ? loadingIcon : undefined}
-        {sets.map(set => <FlashcardSetPreview key={set.id} set={set} />)}
+        {sets.map((set) => (
+          <FlashcardSetPreview key={set.id} set={set} />
+        ))}
         {loginWindow}
       </MainView>
     </>

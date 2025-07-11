@@ -24,7 +24,7 @@ class Wrapper implements Storage {
   public get length(): number {
     return localStorage.length;
   }
-};
+}
 
 const LocalStorageWrapper = new Wrapper();
 

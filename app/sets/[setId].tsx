@@ -13,9 +13,7 @@ export default function SetId() {
   const [set, setSet] = useState<FlashcardSet>();
   const [loading, setLoading] = useState(true);
 
-  const setId = Number(
-    useLocalSearchParams<{ setId: string }>().setId
-  );
+  const setId = Number(useLocalSearchParams<{ setId: string }>().setId);
 
   useEffect(() => {
     async function get() {
@@ -25,7 +23,10 @@ export default function SetId() {
 
         setLoading(false);
       } catch (e) {
-        const { response } = e as AxiosError<{ name?: string, message?: string }>;
+        const { response } = e as AxiosError<{
+          name?: string;
+          message?: string;
+        }>;
 
         toast.error(response?.data.message ?? "Unknown error");
         console.error(response ?? e);
@@ -49,9 +50,7 @@ export default function SetId() {
         <Appbar.Content title={set?.name} />
       </Appbar.Header>
 
-      <MainView>
-        {loading ? loadingIcon : undefined}
-      </MainView>
+      <MainView>{loading ? loadingIcon : undefined}</MainView>
     </>
   );
 }

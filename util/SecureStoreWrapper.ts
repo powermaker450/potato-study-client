@@ -5,7 +5,7 @@ const SecureStoreWrapper = {
   ...SecureStore,
 
   async getItem(key: LocalStorageKey) {
-    return await this.getItemAsync(key)
+    return await this.getItemAsync(key);
   },
 
   async setItem(key: LocalStorageKey, value: string) {
@@ -14,7 +14,7 @@ const SecureStoreWrapper = {
 
   async deleteItem(key: LocalStorageKey) {
     return await this.deleteItemAsync(key);
-  }
+  },
 };
 
 export default SecureStoreWrapper;

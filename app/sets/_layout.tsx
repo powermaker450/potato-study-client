@@ -8,8 +8,8 @@ export default function RootLayout() {
   const screenOptions: ComponentProps<typeof Stack>["screenOptions"] = {
     headerShown: false,
     contentStyle: {
-      backgroundColor: theme.colors.background 
-    }
+      backgroundColor: theme.colors.background,
+    },
   };
 
   return <Stack screenOptions={screenOptions} />;

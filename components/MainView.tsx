@@ -11,12 +11,12 @@ const MainView = ({ children }: MainViewProps) => {
       style={{
         flex: 1,
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
       }}
     >
       {children}
     </View>
-  )
+  );
 };
 
 export default MainView;
