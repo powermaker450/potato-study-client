@@ -84,18 +84,6 @@ export const ApiProvider = ({ children }: ApiProviderProps) => {
     getLocalCredentials();
   }, []);
 
-  useEffect(() => {
-    async function checkLoggedIn() {
-      // @ts-ignore
-      if (api.axios.getUri() === "http://localhost") {
-        setLoggedIn(false);
-        return;
-      }
-    }
-
-    checkLoggedIn();
-  }, [api]);
-
   return (
     <ApiContext.Provider
       value={{
