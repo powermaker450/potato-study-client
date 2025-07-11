@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { PotatoStudyApi } from "@povario/potato-study.js";
-import { Platform } from "react-native";
-import * as SecureStore from "expo-secure-store";
+import SecureStoreWrapper from "@/util/SecureStoreWrapper";
+import LocalStorageWrapper from "@/util/LocalStorageWrapper";
 
 interface ApiProviderProps {
   children: ReactNode;
@@ -32,12 +32,14 @@ export const ApiProvider = ({ children }: ApiProviderProps) => {
   const [loading, setLoading] = useState(true);
 
   async function login({ baseUrl, token }: ApiLoginOpts) {
-    if (Platform.OS === "web") {
-      token && localStorage.setItem("token", token);
-      localStorage.setItem("baseUrl", baseUrl);
+    const available = await SecureStoreWrapper.isAvailableAsync();
+
+    if (available) {
+      token && await SecureStoreWrapper.setItem("token", token);
+      await SecureStoreWrapper.setItem("baseUrl", baseUrl);
     } else {
-      token && await SecureStore.setItemAsync("token", token);
-      await SecureStore.setItemAsync("baseUrl", baseUrl);
+      token && LocalStorageWrapper.setItem("token", token);
+      LocalStorageWrapper.setItem("baseUrl", baseUrl);
     }
 
     setApi(new PotatoStudyApi(baseUrl, token));
@@ -46,30 +48,32 @@ export const ApiProvider = ({ children }: ApiProviderProps) => {
   };
 
   async function logout() {
+    const available = await SecureStoreWrapper.isAvailableAsync();
+
     setApi(new PotatoStudyApi(EXPO_PUBLIC_BASE_URL ?? "http://localhost:8080", ""));
     setBaseUrl("");
     setLoggedIn(false);
 
-    if (Platform.OS === "web") {
-      localStorage.setItem("token", "");
-      localStorage.setItem("baseUrl", "");
+    if (available) {
+      LocalStorageWrapper.setItem("token", "");
+      LocalStorageWrapper.setItem("baseUrl", "");
       return;
     }
 
-    await SecureStore.setItemAsync("token", "");
-    await SecureStore.setItemAsync("baseUrl", "");
+    await SecureStoreWrapper.setItem("token", "");
+    await SecureStoreWrapper.setItem("baseUrl", "");
   }
 
   async function getLocalCredentials() {
-    let token: string | null, baseUrl: string | null;
+    const available = await SecureStoreWrapper.isAvailableAsync();
 
-    if (Platform.OS === "web") {
-      token = localStorage.getItem("token");
-      baseUrl = localStorage.getItem("baseUrl");
-    } else {
-      token = await SecureStore.getItemAsync("token");
-      baseUrl = await SecureStore.getItemAsync("baseUrl");
-    }
+    const token = available
+      ? await SecureStoreWrapper.getItem("token")
+      : LocalStorageWrapper.getItem("token");
+
+    const baseUrl = available
+      ? await SecureStoreWrapper.getItem("baseUrl")
+      : LocalStorageWrapper.getItem("baseUrl");
 
     if (baseUrl) {
       setApi(new PotatoStudyApi(baseUrl, token ?? undefined));
