@@ -10,6 +10,7 @@ import {
 import { ComponentProps, useMemo } from "react";
 import { ApiProvider } from "@/contexts/ApiProvider";
 import { ToastProvider } from "@/contexts/ToastProvider";
+import { HeaderProvider } from "@/contexts/HeaderProvider";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -42,7 +43,9 @@ export default function RootLayout() {
     <PaperProvider theme={paperTheme}>
       <ToastProvider>
         <ApiProvider>
-          <Stack screenOptions={screenOptions} />
+          <HeaderProvider>
+            <Stack screenOptions={screenOptions} />
+          </HeaderProvider>
         </ApiProvider>
       </ToastProvider>
     </PaperProvider>

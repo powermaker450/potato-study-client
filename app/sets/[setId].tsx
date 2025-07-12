@@ -44,13 +44,5 @@ export default function SetId() {
 
   const loadingIcon = <ActivityIndicator animating />;
 
-  return (
-    <>
-      <Appbar.Header>
-        <Appbar.Content title={set?.name} />
-      </Appbar.Header>
-
-      <MainView>{loading ? loadingIcon : undefined}</MainView>
-    </>
-  );
+  return <MainView>{loading ? loadingIcon : undefined}</MainView>;
 }
