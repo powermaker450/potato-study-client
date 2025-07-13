@@ -86,7 +86,7 @@ export const ApiProvider = ({ children }: ApiProviderProps) => {
       : LocalStorageWrapper.getItem("baseUrl");
 
     localBaseUrl &&
-      setApi(new PotatoStudyApi(baseUrl, localToken ?? undefined));
+      setApi(new PotatoStudyApi(localBaseUrl, localToken ?? undefined));
     setBaseUrl(localBaseUrl ?? EXPO_PUBLIC_BASE_URL ?? "http://localhost:8080");
 
     setLoggedIn(!!localToken);
