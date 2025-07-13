@@ -1,6 +1,7 @@
 import {
   ComponentProps,
   createContext,
+  JSX,
   ReactNode,
   useCallback,
   useContext,
@@ -21,6 +22,7 @@ import { IconSource } from "react-native-paper/lib/typescript/components/Icon";
 import { useApi } from "./ApiProvider";
 import { useToast } from "./ToastProvider";
 import type { AxiosError } from "axios";
+import { router, usePathname } from "expo-router";
 
 interface HeaderProviderProps {
   children?: ReactNode;
@@ -51,6 +53,7 @@ interface HeaderProviderStyleSheet {
 export const HeaderProvider = ({ children }: HeaderProviderProps) => {
   const { api, baseUrl, login, logout, loggedIn } = useApi();
   const toast = useToast();
+  const path = usePathname();
 
   const [loginWindowVisible, setLoginWindowVisible] = useState(false);
   const showLoginWindow = () => setLoginWindowVisible(true);
@@ -181,6 +184,14 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
     </Portal>
   );
 
+  const back = () =>
+    router.canGoBack() ? router.back() : router.navigate("/");
+
+  const backAction = useMemo<JSX.Element | undefined>(
+    () => (path !== "/" ? <Appbar.BackAction onPress={back} /> : undefined),
+    [path],
+  );
+
   return (
     <HeaderContext.Provider
       value={{
@@ -193,6 +204,8 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
       }}
     >
       <Appbar.Header>
+        {backAction}
+
         <Appbar.Content title={title} />
 
         <Tooltip title={loggedIn ? "Account" : "Log in"}>
