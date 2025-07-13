@@ -1,9 +1,7 @@
 import MainView from "@/components/MainView";
 import { useApi } from "@/contexts/ApiProvider";
 import { useEffect, useState } from "react";
-import {
-  ActivityIndicator,
-} from "react-native-paper";
+import { ActivityIndicator } from "react-native-paper";
 import type { AxiosError } from "axios";
 import { useToast } from "@/contexts/ToastProvider";
 import { FlashcardSet } from "@povario/potato-study.js/models";

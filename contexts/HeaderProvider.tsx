@@ -8,7 +8,15 @@ import {
   useState,
 } from "react";
 import { Platform } from "react-native";
-import { Appbar, Button, Dialog, Portal, TextInput } from "react-native-paper";
+import {
+  Appbar,
+  Button,
+  Dialog,
+  Portal,
+  Text,
+  TextInput,
+  Tooltip,
+} from "react-native-paper";
 import { IconSource } from "react-native-paper/lib/typescript/components/Icon";
 import { useApi } from "./ApiProvider";
 import { useToast } from "./ToastProvider";
@@ -20,6 +28,7 @@ interface HeaderProviderProps {
 
 interface ActionPush {
   icon: IconSource;
+  tooltip: string;
   onPress: ComponentProps<(typeof Appbar)["Action"]>["onPress"];
 }
 
@@ -40,12 +49,16 @@ interface HeaderProviderStyleSheet {
 }
 
 export const HeaderProvider = ({ children }: HeaderProviderProps) => {
-  const { api, baseUrl, login } = useApi();
+  const { api, baseUrl, login, logout, loggedIn } = useApi();
   const toast = useToast();
 
   const [loginWindowVisible, setLoginWindowVisible] = useState(false);
   const showLoginWindow = () => setLoginWindowVisible(true);
   const hideLoginWindow = () => setLoginWindowVisible(false);
+
+  const [logoutWindowVisible, setLogoutWindowVisible] = useState(false);
+  const showLogoutWindow = () => setLogoutWindowVisible(true);
+  const hideLogoutWindow = () => setLogoutWindowVisible(false);
 
   const [title, setTitle] = useState("Potato Study");
   const clearTitle = () => setTitle("Potato Study");
@@ -94,6 +107,12 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
     }
   }, [email, password]);
 
+  const execLogout = async () => {
+    await logout();
+    toast.show("Logged out.");
+    setLogoutWindowVisible(false);
+  };
+
   const loginWindow = (
     <Portal>
       <Dialog
@@ -141,6 +160,27 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
     </Portal>
   );
 
+  const logoutWindow = (
+    <Portal>
+      <Dialog
+        style={styles.loginWindow}
+        visible={logoutWindowVisible}
+        onDismiss={hideLogoutWindow}
+      >
+        <Dialog.Title>Log out</Dialog.Title>
+
+        <Dialog.Content>
+          <Text>Are you sure you want to log out?</Text>
+        </Dialog.Content>
+
+        <Dialog.Actions>
+          <Button onPress={hideLogoutWindow}>Cancel</Button>
+          <Button onPress={execLogout}>Log out</Button>
+        </Dialog.Actions>
+      </Dialog>
+    </Portal>
+  );
+
   return (
     <HeaderContext.Provider
       value={{
@@ -155,13 +195,22 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
       <Appbar.Header>
         <Appbar.Content title={title} />
 
-        <Appbar.Action icon="login" onPress={showLoginWindow} />
+        <Tooltip title={loggedIn ? "Account" : "Log in"}>
+          <Appbar.Action
+            icon={loggedIn ? "account" : "login"}
+            onPress={loggedIn ? showLogoutWindow : showLoginWindow}
+          />
+        </Tooltip>
+
         {actions.map((action) => (
-          <Appbar.Action icon={action.icon} onPress={action.onPress} />
+          <Tooltip title={action.tooltip}>
+            <Appbar.Action icon={action.icon} onPress={action.onPress} />
+          </Tooltip>
         ))}
       </Appbar.Header>
 
       {loginWindow}
+      {logoutWindow}
       {children}
     </HeaderContext.Provider>
   );

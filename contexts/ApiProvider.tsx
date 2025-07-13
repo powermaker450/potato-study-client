@@ -61,36 +61,35 @@ export const ApiProvider = ({ children }: ApiProviderProps) => {
     setApi(
       new PotatoStudyApi(EXPO_PUBLIC_BASE_URL ?? "http://localhost:8080", ""),
     );
-    setBaseUrl("");
-    setLoggedIn(false);
 
     if (available) {
+      await SecureStoreWrapper.setItem("token", "");
+      await SecureStoreWrapper.setItem("baseUrl", "");
+    } else {
       LocalStorageWrapper.setItem("token", "");
       LocalStorageWrapper.setItem("baseUrl", "");
-      return;
     }
 
-    await SecureStoreWrapper.setItem("token", "");
-    await SecureStoreWrapper.setItem("baseUrl", "");
+    setBaseUrl(EXPO_PUBLIC_BASE_URL ?? "http://localhost:8080");
+    setLoggedIn(false);
   }
 
   async function getLocalCredentials() {
     const available = await SecureStoreWrapper.isAvailableAsync();
 
-    const token = available
+    const localToken = available
       ? await SecureStoreWrapper.getItem("token")
       : LocalStorageWrapper.getItem("token");
 
-    const baseUrl = available
+    const localBaseUrl = available
       ? await SecureStoreWrapper.getItem("baseUrl")
       : LocalStorageWrapper.getItem("baseUrl");
 
-    if (baseUrl) {
-      setApi(new PotatoStudyApi(baseUrl, token ?? undefined));
-      setBaseUrl(baseUrl);
-    }
+    localBaseUrl &&
+      setApi(new PotatoStudyApi(baseUrl, localToken ?? undefined));
+    setBaseUrl(localBaseUrl ?? EXPO_PUBLIC_BASE_URL ?? "http://localhost:8080");
 
-    setLoggedIn(!!token);
+    setLoggedIn(!!localToken);
     setLoading(false);
   }
 
