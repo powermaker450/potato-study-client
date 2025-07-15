@@ -1,4 +1,5 @@
 import {
+  ComponentElement,
   ComponentProps,
   createContext,
   JSX,
@@ -29,9 +30,8 @@ interface HeaderProviderProps {
 }
 
 interface ActionPush {
-  icon: IconSource;
   tooltip: string;
-  onPress: ComponentProps<(typeof Appbar)["Action"]>["onPress"];
+  action: ComponentProps<typeof Appbar.Action>;
 }
 
 interface HeaderProviderData {
@@ -70,7 +70,9 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
   const pushAction: HeaderProviderData["pushAction"] = (action) =>
     setActions((current) => current.concat(action));
   const removeAction: HeaderProviderData["removeAction"] = (icon) =>
-    setActions((current) => current.filter((action) => action.icon !== icon));
+    setActions((current) =>
+      current.filter((value) => value.action.icon !== icon),
+    );
   const clearActions = () => setActions([]);
 
   const [email, setEmail] = useState("");
@@ -82,6 +84,11 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
       !email.match(/[A-Za-z0-9].*@[A-Za-z0-9].*\.[A-Za-z0-9]/) ||
       !password.trim(),
     [email, password],
+  );
+
+  const showCreate = useMemo<boolean>(
+    () => loggedIn && path !== "/sets/create",
+    [loggedIn, path],
   );
 
   const styles: HeaderProviderStyleSheet = {
@@ -208,18 +215,27 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
 
         <Appbar.Content title={title} />
 
+        {actions.map((value) => (
+          <Tooltip title={value.tooltip}>
+            <Appbar.Action {...value.action} />
+          </Tooltip>
+        ))}
+
+        {showCreate ? (
+          <Tooltip title="Create new set">
+            <Appbar.Action
+              icon="plus"
+              onPress={() => router.navigate("/sets/create")}
+            />
+          </Tooltip>
+        ) : undefined}
+
         <Tooltip title={loggedIn ? "Account" : "Log in"}>
           <Appbar.Action
             icon={loggedIn ? "account" : "login"}
             onPress={loggedIn ? showLogoutWindow : showLoginWindow}
           />
         </Tooltip>
-
-        {actions.map((action) => (
-          <Tooltip title={action.tooltip}>
-            <Appbar.Action icon={action.icon} onPress={action.onPress} />
-          </Tooltip>
-        ))}
       </Appbar.Header>
 
       {loginWindow}

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import type { AxiosError } from "axios";
 import { useApi } from "@/contexts/ApiProvider";
 import { useToast } from "@/contexts/ToastProvider";
-import { ActivityIndicator, Appbar } from "react-native-paper";
+import { ActivityIndicator } from "react-native-paper";
 import { FlashcardSet } from "@povario/potato-study.js/models";
 import MainView from "@/components/MainView";
 
@@ -40,6 +40,8 @@ export default function SetId() {
     if (!set) {
       return;
     }
+
+    console.log(set);
   }, [set]);
 
   const loadingIcon = <ActivityIndicator animating />;
