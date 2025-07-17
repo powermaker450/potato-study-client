@@ -6,6 +6,7 @@ import {
   ReactNode,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -18,6 +19,7 @@ import {
   Text,
   TextInput,
   Tooltip,
+  useTheme,
 } from "react-native-paper";
 import { IconSource } from "react-native-paper/lib/typescript/components/Icon";
 import { useApi } from "./ApiProvider";
@@ -47,11 +49,14 @@ const HeaderContext = createContext<HeaderProviderData | undefined>(undefined);
 
 interface HeaderProviderStyleSheet {
   input: ComponentProps<typeof TextInput>["style"];
+  label: ComponentProps<typeof Text>["style"];
+  labelLink: ComponentProps<typeof Text>["style"];
   loginWindow?: ComponentProps<typeof Dialog>["style"];
 }
 
 export const HeaderProvider = ({ children }: HeaderProviderProps) => {
   const { api, baseUrl, login, logout, loggedIn } = useApi();
+  const theme = useTheme();
   const toast = useToast();
   const path = usePathname();
 
@@ -62,6 +67,10 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
   const [logoutWindowVisible, setLogoutWindowVisible] = useState(false);
   const showLogoutWindow = () => setLogoutWindowVisible(true);
   const hideLogoutWindow = () => setLogoutWindowVisible(false);
+
+  const [loginAction, setLoginAction] = useState<"login" | "register">("login");
+  const setActionLogin = () => setLoginAction("login");
+  const setActionRegister = () => setLoginAction("register");
 
   const [title, setTitle] = useState("Potato Study");
   const clearTitle = () => setTitle("Potato Study");
@@ -76,15 +85,15 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
   const clearActions = () => setActions([]);
 
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [passwordHidden, setPasswordHidden] = useState(true);
   const togglePasswordHidden = () => setPasswordHidden((current) => !current);
-  const invalidData = useMemo<boolean>(
-    () =>
-      !email.match(/[A-Za-z0-9].*@[A-Za-z0-9].*\.[A-Za-z0-9]/) ||
-      !password.trim(),
-    [email, password],
-  );
+
+  const invalidLoginData =
+    !email.match(/[A-Za-z0-9].*@[A-Za-z0-9].*\.[A-Za-z0-9]/) ||
+    !password.trim();
+  const invalidRegisterData = invalidLoginData || !username.trim();
 
   const showCreate = useMemo<boolean>(
     () => loggedIn && path !== "/sets/create",
@@ -94,6 +103,14 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
   const styles: HeaderProviderStyleSheet = {
     input: {
       marginBottom: 10,
+    },
+    label: {
+      color: theme.colors.secondary,
+      marginBottom: 10,
+    },
+    labelLink: {
+      color: theme.colors.primary,
+      fontWeight: "bold",
     },
     ...Platform.select({
       web: {
@@ -117,11 +134,117 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
     }
   }, [email, password]);
 
+  const execRegister = useCallback(async () => {
+    try {
+      const { token } = await api.auth.register({ email, username, password });
+      await login({ baseUrl, token });
+
+      toast.show("Logged in.");
+      hideLoginWindow();
+    } catch (e) {
+      const { response } = e as AxiosError<{ name?: string; message?: string }>;
+
+      toast.error(response?.data.message ?? "Unknown error");
+      console.error(response ?? e);
+    }
+  }, [email, username, password]);
+
   const execLogout = async () => {
     await logout();
     toast.show("Logged out.");
     setLogoutWindowVisible(false);
   };
+
+  const loginContent = (
+    <>
+      <TextInput
+        style={styles.input}
+        mode="outlined"
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        textContentType="emailAddress"
+      />
+
+      <TextInput
+        style={styles.input}
+        mode="outlined"
+        placeholder="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry={passwordHidden}
+        textContentType="password"
+        right={
+          <TextInput.Icon
+            icon={passwordHidden ? "eye" : "eye-off"}
+            onPress={togglePasswordHidden}
+          />
+        }
+      />
+
+      <Text style={styles.label} variant="labelLarge">
+        Don't have an account?{" "}
+        <Text style={styles.labelLink} onPress={setActionRegister}>
+          Register
+        </Text>
+      </Text>
+
+      <Dialog.Actions>
+        <Button onPress={hideLoginWindow}>Cancel</Button>
+
+        <Button disabled={invalidLoginData} onPress={execLogin}>
+          Log in
+        </Button>
+      </Dialog.Actions>
+    </>
+  );
+
+  const registerContent = (
+    <>
+      <TextInput
+        style={styles.input}
+        mode="outlined"
+        placeholder="Username"
+        value={username}
+        onChangeText={setUsername}
+        textContentType="username"
+      />
+
+      <TextInput
+        style={styles.input}
+        mode="outlined"
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        textContentType="emailAddress"
+      />
+
+      <TextInput
+        style={styles.input}
+        mode="outlined"
+        placeholder="Password"
+        value={password}
+        onChangeText={setPassword}
+        textContentType="password"
+        secureTextEntry
+      />
+
+      <Text style={styles.label} variant="labelLarge">
+        Already have an account?{" "}
+        <Text style={styles.labelLink} onPress={setActionLogin}>
+          Log in
+        </Text>
+      </Text>
+
+      <Dialog.Actions>
+        <Button onPress={hideLoginWindow}>Cancel</Button>
+
+        <Button disabled={invalidRegisterData} onPress={execRegister}>
+          Register
+        </Button>
+      </Dialog.Actions>
+    </>
+  );
 
   const loginWindow = (
     <Portal>
@@ -130,41 +253,12 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
         visible={loginWindowVisible}
         onDismiss={hideLoginWindow}
       >
-        <Dialog.Title>Log in</Dialog.Title>
+        <Dialog.Title>
+          {loginAction === "login" ? "Log in" : "Register"}
+        </Dialog.Title>
 
         <Dialog.Content>
-          <TextInput
-            style={styles.input}
-            mode="outlined"
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            textContentType="emailAddress"
-          />
-
-          <TextInput
-            style={styles.input}
-            mode="outlined"
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={passwordHidden}
-            textContentType="password"
-            right={
-              <TextInput.Icon
-                icon={passwordHidden ? "eye" : "eye-off"}
-                onPress={togglePasswordHidden}
-              />
-            }
-          />
-
-          <Dialog.Actions>
-            <Button onPress={hideLoginWindow}>Cancel</Button>
-
-            <Button disabled={invalidData} onPress={execLogin}>
-              Log in
-            </Button>
-          </Dialog.Actions>
+          {loginAction === "login" ? loginContent : registerContent}
         </Dialog.Content>
       </Dialog>
     </Portal>
