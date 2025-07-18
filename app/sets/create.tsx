@@ -162,6 +162,8 @@ export default function Create() {
       toast.error(response?.data.message ?? "Unknown error");
       console.error(response ?? e);
     } finally {
+      header.clearTitle();
+      header.clearActions();
       setLoading(false);
     }
   }, [name, flashcards]);
