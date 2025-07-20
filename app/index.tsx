@@ -1,11 +1,15 @@
-import MainView from "@/components/MainView";
 import { useApi } from "@/contexts/ApiProvider";
-import { useEffect, useState } from "react";
+import { ComponentProps, useEffect, useState } from "react";
 import { ActivityIndicator } from "react-native-paper";
 import type { AxiosError } from "axios";
 import { useToast } from "@/contexts/ToastProvider";
 import { FlashcardSet } from "@povario/potato-study.js/models";
 import FlashcardSetPreview from "@/components/FlashcardSetPreview";
+import { View } from "react-native";
+
+interface IndexStyleSheet {
+  view: ComponentProps<typeof View>["style"];
+}
 
 export default function Index() {
   const { api } = useApi();
@@ -33,14 +37,24 @@ export default function Index() {
     start();
   }, []);
 
+  const styles: IndexStyleSheet = {
+    view: {
+      flex: 1,
+      width: "95%",
+      alignSelf: "center",
+      alignItems: "stretch",
+      gap: 15,
+    },
+  };
+
   const loadingIcon = <ActivityIndicator animating />;
 
   return (
-    <MainView>
+    <View style={styles.view}>
       {loading ? loadingIcon : undefined}
       {sets.map((set) => (
         <FlashcardSetPreview key={set.id} set={set} />
       ))}
-    </MainView>
+    </View>
   );
 }

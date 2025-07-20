@@ -1,4 +1,5 @@
 import { FlashcardSet } from "@povario/potato-study.js/models";
+import { router } from "expo-router";
 import { ComponentProps } from "react";
 import { Card, Text } from "react-native-paper";
 
@@ -23,8 +24,10 @@ const FlashcardSetPreview = ({ set }: FlashcardSetPreviewProps) => {
     </Text>
   );
 
+  const goTo = () => router.navigate(`/sets/${set.id}`);
+
   return (
-    <Card>
+    <Card onPress={goTo}>
       <Card.Title title={cardTitle} subtitle={`Created by: ${set.creator}`} />
     </Card>
   );
