@@ -1,17 +1,18 @@
-import { FlashcardSet } from "@povario/potato-study.js/models";
+import { FlashcardSet, User } from "@povario/potato-study.js/models";
 import { router } from "expo-router";
 import { ComponentProps } from "react";
 import { Card, Text } from "react-native-paper";
 
 interface FlashcardSetPreviewProps {
   set: FlashcardSet;
+  users: Map<number, User> | undefined;
 }
 
 interface FlashcardSetPreviewStyleSheet {
   title: ComponentProps<typeof Text>["style"];
 }
 
-const FlashcardSetPreview = ({ set }: FlashcardSetPreviewProps) => {
+const FlashcardSetPreview = ({ set, users }: FlashcardSetPreviewProps) => {
   const styles: FlashcardSetPreviewStyleSheet = {
     title: {
       fontWeight: "bold",
@@ -28,7 +29,10 @@ const FlashcardSetPreview = ({ set }: FlashcardSetPreviewProps) => {
 
   return (
     <Card onPress={goTo}>
-      <Card.Title title={cardTitle} subtitle={`Created by: ${set.creator}`} />
+      <Card.Title
+        title={cardTitle}
+        subtitle={`Created by: ${users?.get(set.creator)?.username ?? "Unknown user"}`}
+      />
     </Card>
   );
 };
