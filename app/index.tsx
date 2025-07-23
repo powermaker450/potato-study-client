@@ -6,12 +6,14 @@ import { useToast } from "@/contexts/ToastProvider";
 import { FlashcardSet, User } from "@povario/potato-study.js/models";
 import FlashcardSetPreview from "@/components/FlashcardSetPreview";
 import { View } from "react-native";
+import { useNavigation } from "expo-router";
 
 interface IndexStyleSheet {
   view: ComponentProps<typeof View>["style"];
 }
 
 export default function Index() {
+  const navigation = useNavigation();
   const { api } = useApi();
   const toast = useToast();
   const [sets, setSets] = useState<FlashcardSet[]>([]);
@@ -33,10 +35,10 @@ export default function Index() {
       try {
         const res = await api.sets.getAll();
         setSets(res);
-        console.log(res);
-        setLoading(false);
       } catch (e) {
         handleErr(e);
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -55,8 +57,10 @@ export default function Index() {
       }
     }
 
-    getSets();
-    getUsers();
+    navigation.addListener("focus", () => {
+      getUsers();
+      getSets();
+    });
   }, []);
 
   const styles: IndexStyleSheet = {
