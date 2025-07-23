@@ -10,11 +10,11 @@ import {
   useMemo,
   useState,
 } from "react";
-import type { AxiosError } from "axios";
 import { useToast } from "@/contexts/ToastProvider";
 import { Button, TextInput } from "react-native-paper";
 import { ScrollView, View } from "react-native";
 import FlashcardCreateCard from "@/components/FlashcardCreateCard";
+import { handleAxiosErr } from "@/util/handleAxiosErr";
 
 interface CreateStyleSheet {
   view: ComponentProps<typeof ScrollView>["style"];
@@ -157,10 +157,7 @@ export default function Create() {
       const res = await api.sets.create({ name, flashcards });
       router.replace(`/sets/${res.id}`);
     } catch (e) {
-      const { response } = e as AxiosError<{ name?: string; message?: string }>;
-
-      toast.error(response?.data.message ?? "Unknown error");
-      console.error(response ?? e);
+      handleAxiosErr(e, toast.error);
     } finally {
       header.clearTitle();
       header.clearActions();

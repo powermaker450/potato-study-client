@@ -1,6 +1,5 @@
 import { useLocalSearchParams, useNavigation } from "expo-router";
 import { ComponentProps, useEffect, useState } from "react";
-import type { AxiosError } from "axios";
 import { useApi } from "@/contexts/ApiProvider";
 import { useToast } from "@/contexts/ToastProvider";
 import { ActivityIndicator } from "react-native-paper";
@@ -8,6 +7,7 @@ import { FlashcardSet } from "@povario/potato-study.js/models";
 import { useHeader } from "@/contexts/HeaderProvider";
 import { View } from "react-native";
 import FlashcardSetView from "@/components/FlashcardSetView";
+import { handleAxiosErr } from "@/util/handleAxiosErr";
 
 interface SetIdStyleSheet {
   viewContent: ComponentProps<typeof View>["style"];
@@ -33,13 +33,7 @@ export default function SetId() {
         setSet(res);
         header.setTitle(res.name);
       } catch (e) {
-        const { response } = e as AxiosError<{
-          name?: string;
-          message?: string;
-        }>;
-
-        toast.error(response?.data.message ?? "Unknown error");
-        console.error(response ?? e);
+        handleAxiosErr(e, toast.error);
       }
     }
 

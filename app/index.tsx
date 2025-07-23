@@ -1,12 +1,12 @@
 import { useApi } from "@/contexts/ApiProvider";
 import { ComponentProps, useEffect, useState } from "react";
 import { ActivityIndicator } from "react-native-paper";
-import type { AxiosError } from "axios";
 import { useToast } from "@/contexts/ToastProvider";
 import { FlashcardSet, User } from "@povario/potato-study.js/models";
 import FlashcardSetPreview from "@/components/FlashcardSetPreview";
 import { View } from "react-native";
 import { useNavigation } from "expo-router";
+import { handleAxiosErr } from "@/util/handleAxiosErr";
 
 interface IndexStyleSheet {
   view: ComponentProps<typeof View>["style"];
@@ -21,22 +21,12 @@ export default function Index() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    function handleErr(e: unknown) {
-      const { response } = e as AxiosError<{
-        name?: string;
-        message?: string;
-      }>;
-
-      toast.error(response?.data.message ?? "Unknown error");
-      console.error(response ?? e);
-    }
-
     async function getSets() {
       try {
         const res = await api.sets.getAll();
         setSets(res);
       } catch (e) {
-        handleErr(e);
+        handleAxiosErr(e, toast.error);
       } finally {
         setLoading(false);
       }
@@ -53,7 +43,7 @@ export default function Index() {
 
         setUsers(data);
       } catch (e) {
-        handleErr(e);
+        handleAxiosErr(e, toast.error);
       }
     }
 

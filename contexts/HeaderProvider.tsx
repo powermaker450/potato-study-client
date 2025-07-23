@@ -24,8 +24,8 @@ import {
 import { IconSource } from "react-native-paper/lib/typescript/components/Icon";
 import { useApi } from "./ApiProvider";
 import { useToast } from "./ToastProvider";
-import type { AxiosError } from "axios";
 import { router, usePathname } from "expo-router";
+import { handleAxiosErr } from "@/util/handleAxiosErr";
 
 interface HeaderProviderProps {
   children?: ReactNode;
@@ -127,10 +127,7 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
       toast.show("Logged in.");
       hideLoginWindow();
     } catch (e) {
-      const { response } = e as AxiosError<{ name?: string; message?: string }>;
-
-      toast.error(response?.data.message ?? "Unknown error");
-      console.error(response ?? e);
+      handleAxiosErr(e, toast.error);
     }
   }, [email, password]);
 
@@ -142,10 +139,7 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
       toast.show("Logged in.");
       hideLoginWindow();
     } catch (e) {
-      const { response } = e as AxiosError<{ name?: string; message?: string }>;
-
-      toast.error(response?.data.message ?? "Unknown error");
-      console.error(response ?? e);
+      handleAxiosErr(e, toast.error);
     }
   }, [email, username, password]);
 
