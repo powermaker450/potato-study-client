@@ -309,8 +309,8 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
 
         <Appbar.Content title={title} />
 
-        {actions.map((value) => (
-          <Tooltip title={value.tooltip}>
+        {actions.map((value, index) => (
+          <Tooltip key={index} title={value.tooltip}>
             <Appbar.Action {...value.action} />
           </Tooltip>
         ))}
