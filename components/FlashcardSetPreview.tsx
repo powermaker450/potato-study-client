@@ -1,3 +1,4 @@
+import { useSet } from "@/contexts/SetProvider";
 import { FlashcardSet, User } from "@povario/potato-study.js/models";
 import { router } from "expo-router";
 import { ComponentProps } from "react";
@@ -13,6 +14,8 @@ interface FlashcardSetPreviewStyleSheet {
 }
 
 const FlashcardSetPreview = ({ set, users }: FlashcardSetPreviewProps) => {
+  const { setSetId } = useSet();
+
   const styles: FlashcardSetPreviewStyleSheet = {
     title: {
       fontWeight: "bold",
@@ -25,7 +28,10 @@ const FlashcardSetPreview = ({ set, users }: FlashcardSetPreviewProps) => {
     </Text>
   );
 
-  const goTo = () => router.navigate(`/sets/${set.id}`);
+  const goTo = () => {
+    setSetId(set.id);
+    router.navigate(`/sets/${set.id}`);
+  };
 
   return (
     <Card onPress={goTo}>
