@@ -149,6 +149,16 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
     setLogoutWindowVisible(false);
   };
 
+  const handleEnter: ComponentProps<typeof TextInput>["onKeyPress"] = ({
+    nativeEvent,
+  }) => {
+    if (invalidLoginData) {
+      return;
+    }
+
+    nativeEvent.key === "Enter" && execLogin();
+  };
+
   const loginContent = (
     <>
       <TextInput
@@ -168,6 +178,7 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
         onChangeText={setPassword}
         secureTextEntry={passwordHidden}
         textContentType="password"
+        onKeyPress={handleEnter}
         right={
           <TextInput.Icon
             icon={passwordHidden ? "eye" : "eye-off"}
