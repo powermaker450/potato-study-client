@@ -1,15 +1,8 @@
 import { useApi } from "@/contexts/ApiProvider";
 import { useHeader } from "@/contexts/HeaderProvider";
 import { FlashcardCreate } from "@povario/potato-study.js/schema";
-import { router, useNavigation } from "expo-router";
-import {
-  ComponentProps,
-  JSX,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { router } from "expo-router";
+import { ComponentProps, useCallback, useEffect, useState } from "react";
 import { useToast } from "@/contexts/ToastProvider";
 import { Button, TextInput } from "react-native-paper";
 import { ScrollView, View } from "react-native";
@@ -25,17 +18,11 @@ interface CreateStyleSheet {
 
 export default function Create() {
   const { api } = useApi();
-  const navigation = useNavigation();
   const header = useHeader();
   const toast = useToast();
 
   useEffect(() => {
     header.setTitle("Create New Set");
-
-    navigation.addListener("beforeRemove", () => {
-      header.clearActions();
-      header.clearTitle();
-    });
   }, []);
 
   const [loading, setLoading] = useState(false);

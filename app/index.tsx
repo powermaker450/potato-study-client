@@ -7,15 +7,18 @@ import FlashcardSetPreview from "@/components/FlashcardSetPreview";
 import { View } from "react-native";
 import { useNavigation } from "expo-router";
 import { handleAxiosErr } from "@/util/handleAxiosErr";
+import { useHeader } from "@/contexts/HeaderProvider";
 
 interface IndexStyleSheet {
   view: ComponentProps<typeof View>["style"];
 }
 
 export default function Index() {
-  const navigation = useNavigation();
   const { api } = useApi();
+  const navigation = useNavigation();
   const toast = useToast();
+  const header = useHeader();
+
   const [sets, setSets] = useState<FlashcardSet[]>([]);
   const [users, setUsers] = useState<Map<number, User>>();
   const [loading, setLoading] = useState(true);
@@ -47,9 +50,12 @@ export default function Index() {
       }
     }
 
-    navigation.addListener("focus", () => {
-      getUsers();
-      getSets();
+    navigation.addListener("focus", async () => {
+      header.clearActions();
+      header.clearTitle();
+
+      await getUsers();
+      await getSets();
     });
   }, []);
 
