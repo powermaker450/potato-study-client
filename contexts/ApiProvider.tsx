@@ -49,9 +49,7 @@ const ApiContext = createContext<ApiProviderData | undefined>(undefined);
 export const ApiProvider = ({ children }: ApiProviderProps) => {
   const url = process.env.EXPO_PUBLIC_BASE_URL || "http://localhost:8080";
 
-  const [api, setApi] = useState(
-    new PotatoStudyApi(url),
-  );
+  const [api, setApi] = useState(new PotatoStudyApi(url));
   const [baseUrl, setBaseUrl] = useState(url);
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -75,9 +73,7 @@ export const ApiProvider = ({ children }: ApiProviderProps) => {
   async function logout() {
     const available = await SecureStoreWrapper.isAvailableAsync();
 
-    setApi(
-      new PotatoStudyApi(url, ""),
-    );
+    setApi(new PotatoStudyApi(url, ""));
 
     if (available) {
       await SecureStoreWrapper.setItem("token", "");

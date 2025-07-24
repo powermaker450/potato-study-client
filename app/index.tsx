@@ -18,7 +18,7 @@
 
 import { useApi } from "@/contexts/ApiProvider";
 import { ComponentProps, useEffect, useState } from "react";
-import { ActivityIndicator } from "react-native-paper";
+import { ActivityIndicator, Text } from "react-native-paper";
 import { useToast } from "@/contexts/ToastProvider";
 import { FlashcardSet, User } from "@povario/potato-study.js/models";
 import FlashcardSetPreview from "@/components/FlashcardSetPreview";
@@ -29,6 +29,7 @@ import { useHeader } from "@/contexts/HeaderProvider";
 
 interface IndexStyleSheet {
   view: ComponentProps<typeof View>["style"];
+  headerText: ComponentProps<typeof Text>["style"];
 }
 
 export default function Index() {
@@ -85,13 +86,23 @@ export default function Index() {
       alignItems: "stretch",
       gap: 15,
     },
+    headerText: {
+      alignSelf: "center",
+      fontWeight: "bold",
+    },
   };
 
   const loadingIcon = <ActivityIndicator animating />;
+  const headerText = (
+    <Text variant="titleLarge" style={styles.headerText}>
+      Welcome! To create new sets, sign in or create an account with the sign in
+      button on the top right.
+    </Text>
+  );
 
   return (
     <View style={styles.view}>
-      {loading ? loadingIcon : undefined}
+      {loading ? loadingIcon : headerText}
       {sets.map((set) => (
         <FlashcardSetPreview key={set.id} set={set} users={users} />
       ))}
