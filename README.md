@@ -3,7 +3,7 @@
 The official client for [Potato Study](https://github.com/powermaker450/potato-study)
 
 ## Hosting
-1. Follow the instructions for setting up the [server](https://github/powermaker450/potato-study)
+1. Follow the instructions for setting up the [server](https://github.com/powermaker450/potato-study)
 
 2. Clone the repo and install the dependencies:
 ```bash
