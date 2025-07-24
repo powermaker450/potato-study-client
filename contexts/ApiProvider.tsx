@@ -32,14 +32,13 @@ interface ApiProviderProps {
 }
 
 interface ApiLoginOpts {
-  baseUrl: string;
   token?: string;
 }
 
 interface ApiProviderData {
   api: PotatoStudyApi;
   baseUrl: string;
-  login: ({ baseUrl, token }: ApiLoginOpts) => Promise<void>;
+  login: ({ token }: ApiLoginOpts) => Promise<void>;
   logout: () => Promise<void>;
   loggedIn: boolean;
   loading: boolean;
@@ -48,16 +47,16 @@ interface ApiProviderData {
 const ApiContext = createContext<ApiProviderData | undefined>(undefined);
 
 export const ApiProvider = ({ children }: ApiProviderProps) => {
-  const { EXPO_PUBLIC_BASE_URL } = process.env;
+  const url = process.env.EXPO_PUBLIC_BASE_URL || "http://localhost:8080";
 
   const [api, setApi] = useState(
-    new PotatoStudyApi(EXPO_PUBLIC_BASE_URL ?? "http://localhost:8080", ""),
+    new PotatoStudyApi(url),
   );
-  const [baseUrl, setBaseUrl] = useState("");
+  const [baseUrl, setBaseUrl] = useState(url);
   const [loggedIn, setLoggedIn] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  async function login({ baseUrl, token }: ApiLoginOpts) {
+  async function login({ token }: ApiLoginOpts) {
     const available = await SecureStoreWrapper.isAvailableAsync();
 
     if (available) {
@@ -77,7 +76,7 @@ export const ApiProvider = ({ children }: ApiProviderProps) => {
     const available = await SecureStoreWrapper.isAvailableAsync();
 
     setApi(
-      new PotatoStudyApi(EXPO_PUBLIC_BASE_URL ?? "http://localhost:8080", ""),
+      new PotatoStudyApi(url, ""),
     );
 
     if (available) {
@@ -88,7 +87,7 @@ export const ApiProvider = ({ children }: ApiProviderProps) => {
       LocalStorageWrapper.setItem("baseUrl", "");
     }
 
-    setBaseUrl(EXPO_PUBLIC_BASE_URL ?? "http://localhost:8080");
+    setBaseUrl(url);
     setLoggedIn(false);
   }
 
@@ -105,7 +104,7 @@ export const ApiProvider = ({ children }: ApiProviderProps) => {
 
     localBaseUrl &&
       setApi(new PotatoStudyApi(localBaseUrl, localToken ?? undefined));
-    setBaseUrl(localBaseUrl ?? EXPO_PUBLIC_BASE_URL ?? "http://localhost:8080");
+    setBaseUrl(localBaseUrl ?? url);
 
     setLoggedIn(!!localToken);
     setLoading(false);

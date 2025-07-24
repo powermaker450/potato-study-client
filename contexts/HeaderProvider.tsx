@@ -73,7 +73,7 @@ interface HeaderProviderStyleSheet {
 }
 
 export const HeaderProvider = ({ children }: HeaderProviderProps) => {
-  const { api, baseUrl, login, logout, loggedIn } = useApi();
+  const { api, login, logout, loggedIn } = useApi();
   const theme = useTheme();
   const toast = useToast();
   const path = usePathname();
@@ -140,7 +140,7 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
   const execLogin = useCallback(async () => {
     try {
       const { token } = await api.auth.login({ email, password });
-      await login({ baseUrl, token });
+      await login({ token });
 
       toast.show("Logged in.");
       hideLoginWindow();
@@ -152,7 +152,7 @@ export const HeaderProvider = ({ children }: HeaderProviderProps) => {
   const execRegister = useCallback(async () => {
     try {
       const { token } = await api.auth.register({ email, username, password });
-      await login({ baseUrl, token });
+      await login({ token });
 
       toast.show("Logged in.");
       hideLoginWindow();

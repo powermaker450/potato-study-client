@@ -39,7 +39,7 @@ interface SetIdStyleSheet {
 }
 
 export default function SetId() {
-  const { api } = useApi();
+  const { api, loggedIn } = useApi();
   const { set } = useSet();
   const toast = useToast();
   const header = useHeader();
@@ -49,6 +49,10 @@ export default function SetId() {
   const [isOwner, setIsOwner] = useState(false);
 
   async function get() {
+    if (!loggedIn) {
+      return;
+    }
+
     try {
       const res = await api.users.getSelf();
       setIsOwner(set?.creator === res.id);
@@ -120,7 +124,7 @@ export default function SetId() {
   return (
     <>
       <Portal>
-        <Dialog>
+        <Dialog visible={false}>
           <Dialog.Title>
             <Text style={styles.dialogTitle}>Delete {set?.name}</Text>
           </Dialog.Title>
@@ -129,7 +133,9 @@ export default function SetId() {
             Are you sure you want to delete this set?
           </Dialog.Content>
 
-          <Dialog.Actions></Dialog.Actions>
+          <Dialog.Actions>
+            <></>
+          </Dialog.Actions>
         </Dialog>
       </Portal>
 
