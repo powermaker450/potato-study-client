@@ -84,52 +84,6 @@ export default function Create() {
     });
   }, [loading, flashcards]);
 
-  const renderCard = (flashcard: FlashcardCreate) => {
-    const setText = (text: string) =>
-      setFlashcards((current) => {
-        const newArray = [...current];
-        newArray[flashcard.index] = { ...newArray[flashcard.index], text };
-
-        return newArray;
-      });
-
-    const setAnswer = (answer: string) =>
-      setFlashcards((current) => {
-        const newArray = [...current];
-        newArray[flashcard.index] = { ...newArray[flashcard.index], answer };
-
-        return newArray;
-      });
-
-    const deleteCard = () =>
-      setFlashcards((current) => {
-        const newList = current.filter(
-          (card) => card.index !== flashcard.index,
-        );
-
-        for (let i = flashcard.index; i < newList.length; i++) {
-          newList[i].index--;
-        }
-
-        return newList;
-      });
-
-    return (
-      <FlashcardCreateCard
-        key={flashcard.index}
-        card={flashcard}
-        setText={setText}
-        setAnswer={setAnswer}
-        deleteCard={deleteCard}
-      />
-    );
-  };
-
-  const cardEditors = useMemo<JSX.Element[]>(
-    () => flashcards.toSorted((a, b) => a.index - b.index).map(renderCard),
-    [flashcards],
-  );
-
   const styles: CreateStyleSheet = {
     view: {
       width: "95%",
@@ -175,7 +129,11 @@ export default function Create() {
         onChangeText={setName}
       />
 
-      {cardEditors}
+      {flashcards
+        .toSorted((a, b) => a.index - b.index)
+        .map((flashcard) => (
+          <FlashcardCreateCard card={flashcard} setFlashcards={setFlashcards} />
+        ))}
 
       <View style={styles.buttonContainer}>
         <Button style={styles.button} mode="contained-tonal" onPress={add}>

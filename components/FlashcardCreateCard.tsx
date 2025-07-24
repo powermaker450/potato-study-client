@@ -6,14 +6,12 @@ import {
   useTheme,
 } from "react-native-paper";
 import { FlashcardCreate } from "@povario/potato-study.js/schema";
-import { ComponentProps, useMemo } from "react";
+import { ComponentProps, Dispatch, SetStateAction, useMemo } from "react";
 import { View } from "react-native";
 
 interface FlashcardCreateCardProps {
   card: FlashcardCreate;
-  setText: (text: string) => void;
-  setAnswer: (answer: string) => void;
-  deleteCard: () => void;
+  setFlashcards: Dispatch<SetStateAction<FlashcardCreate[]>>;
 }
 
 interface FlashcardCreateCardStyleSheet {
@@ -25,11 +23,38 @@ interface FlashcardCreateCardStyleSheet {
 
 const FlashcardCreateCard = ({
   card,
-  setText,
-  setAnswer,
-  deleteCard,
+  setFlashcards,
 }: FlashcardCreateCardProps) => {
   const theme = useTheme();
+
+  const setText = (text: string) =>
+    setFlashcards((current) => {
+      const newArray = [...current];
+      newArray[card.index] = { ...newArray[card.index], text };
+
+      return newArray;
+    });
+
+  const setAnswer = (answer: string) =>
+    setFlashcards((current) => {
+      const newArray = [...current];
+      newArray[card.index] = { ...newArray[card.index], answer };
+
+      return newArray;
+    });
+
+  const deleteCard = () =>
+    setFlashcards((current) => {
+      const newArray = current.filter(
+        (flashcard) => flashcard.index !== card.index,
+      );
+
+      for (let i = card.index; i < newArray.length; i++) {
+        newArray[i].index--;
+      }
+
+      return newArray;
+    });
 
   const styles = useMemo<FlashcardCreateCardStyleSheet>(
     () => ({
